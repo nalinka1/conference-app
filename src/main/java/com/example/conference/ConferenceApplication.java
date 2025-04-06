@@ -1,8 +1,13 @@
 package com.example.conference;
 
 import com.example.conference.api.SessionResource;
+import com.example.conference.auth.ApiKeyAuthenticator;
+import com.example.conference.core.User;
 import com.example.conference.db.SessionDAO;
 import com.example.conference.health.AppHealthCheck;
+import io.dropwizard.auth.AuthDynamicFeature;
+import io.dropwizard.auth.AuthValueFactoryProvider;
+import io.dropwizard.auth.basic.BasicCredentialAuthFilter;
 import io.dropwizard.core.Application;
 import io.dropwizard.core.setup.Environment;
 import io.dropwizard.jdbi3.JdbiFactory;
@@ -24,6 +29,15 @@ public class ConferenceApplication extends Application<ConferenceConfiguration> 
         final SessionDAO sessionDAO = jdbi.onDemand(SessionDAO.class);
 
         env.jersey().register(new SessionResource(sessionDAO));
+
+        env.jersey().register(new AuthDynamicFeature(
+                new BasicCredentialAuthFilter.Builder<User>()
+                        .setAuthenticator(new ApiKeyAuthenticator())
+                        .setRealm("API KEY AUTH")
+                        .buildAuthFilter()
+        ));
+
+        env.jersey().register(new AuthValueFactoryProvider.Binder<>(User.class));
 
         env.healthChecks().register("app", new AppHealthCheck());
 

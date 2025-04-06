@@ -1,7 +1,9 @@
 package com.example.conference.api;
 
 import com.example.conference.core.Session;
+import com.example.conference.core.User;
 import com.example.conference.db.SessionDAO;
+import io.dropwizard.auth.Auth;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -28,7 +30,7 @@ public class SessionResource {
     }
 
     @POST
-    public Response create(@Valid Session session) {
+    public Response create(@Valid Session session,  @Auth User user) {
         logger.info("Received a request to create a session with title: {}", session.getTitle());
 
         try {
@@ -46,7 +48,7 @@ public class SessionResource {
 
     @GET
     @Path("/{id}")
-    public Session getSession(@PathParam("id") int id) {
+    public Session getSession(@PathParam("id") int id,  @Auth User user) {
         logger.info("Received a request to get session with ID: {}", id);
         try {
             Session session = sessionDAO.findById(id);
@@ -62,7 +64,7 @@ public class SessionResource {
     }
 
     @GET
-    public List<Session> getAllSessions() {
+    public List<Session> getAllSessions(@Auth User user) {
         logger.info("Received a request to get all sessions");
         try {
             List<Session> sessions = sessionDAO.findAll();
@@ -76,7 +78,7 @@ public class SessionResource {
 
     @PUT
     @Path("/{id}")
-    public Response updateSession(@PathParam("id") int id, @Valid Session session) {
+    public Response updateSession(@PathParam("id") int id, @Valid Session session,  @Auth User user) {
         logger.info("Received a request to update session with ID: {}", id);
 
         try {
@@ -94,7 +96,7 @@ public class SessionResource {
 
     @DELETE
     @Path("/{id}")
-    public Response deleteSession(@PathParam("id") int id) {
+    public Response deleteSession(@PathParam("id") int id,  @Auth User user) {
         logger.info("Received a request to delete session with ID: {}", id);
         try {
             sessionDAO.delete(id);
